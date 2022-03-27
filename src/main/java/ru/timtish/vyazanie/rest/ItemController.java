@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 import org.yaml.snakeyaml.Yaml;
 import ru.timtish.vyazanie.dto.*;
+import ru.timtish.vyazanie.srote.YmlUtil;
 
 import javax.annotation.PostConstruct;
 import java.io.FileWriter;
@@ -70,7 +71,7 @@ public class ItemController {
                         comment.setId((Number) c.get("id"));
                         comment.setText((String) c.get("text"));
                         comment.setAuthor((String) c.get("author"));
-                        comment.setHidden((Boolean) c.get("text"));
+                        comment.setHidden(Boolean.valueOf(String.valueOf(c.get("hidden"))));
                         return comment;
                     }).collect(Collectors.toList()));
                     Collection<Map<String, Object>> files = (Collection<Map<String, Object>>) obj.get("files");
@@ -102,15 +103,30 @@ public class ItemController {
 
     //@PreDestroy
     public void save() {
-        if (items == null) return;
-        java.io.File f = new java.io.File("data/items.yml.tmp");
-        try (FileWriter out = new FileWriter(f)) {
-            new Yaml().dump(items, out);
-            f.renameTo(new java.io.File("data/items.yml"));
-            log.info("Save {} items", items.size());
-        } catch (Exception e) {
-            log.error("Failed save items.yml", e);
-        }
+        if (items != null) YmlUtil.save(items.values().stream().map(item -> {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("id", item.getId());
+            if (item.getTitle() != null) map.put("title", item.getTitle());
+            if (item.getDescription() != null) map.put("description", item.getDescription());
+            if (item.getTags() != null) map.put("tags", item.getTags().stream().map(Tag::getId).collect(Collectors.toList()));
+            if (item.getFiles() != null) map.put("files", item.getFiles().stream().map(file -> {
+                    Map<String, Object> f = new LinkedHashMap<>();
+                    f.put("id", file.getId());
+                    if (file.getLink() != null) f.put("path", file.getPath());
+                    if (file.getLink() != null) f.put("link", file.getLink());
+                    if (file.getType() != null) f.put("type", file.getType().name());
+                    return f;
+                }).collect(Collectors.toList()));
+            if (item.getComments() != null) map.put("comments", item.getComments().stream().map(comment -> {
+                    Map<String, Object> commentMap = new LinkedHashMap();
+                    commentMap.put("id", comment.getId());
+                    if (comment.isHidden()) commentMap.put("hidden", true);
+                    if (comment.getText() != null) commentMap.put("text", comment.getText());
+                    if (comment.getAuthor() != null) commentMap.put("author", comment.getAuthor());
+                    return commentMap;
+                }).collect(Collectors.toList()));
+            return map;
+        }).collect(Collectors.toList()), "data/items.yml");
     }
 
 }

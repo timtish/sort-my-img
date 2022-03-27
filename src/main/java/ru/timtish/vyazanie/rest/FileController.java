@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.yaml.snakeyaml.Yaml;
 import ru.timtish.vyazanie.dto.File;
 import ru.timtish.vyazanie.dto.FileType;
+import ru.timtish.vyazanie.srote.YmlUtil;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -64,15 +65,7 @@ public class FileController {
 
     //@PreDestroy
     public void save() {
-        if (files == null) return;
-        java.io.File f = new java.io.File("data/files.yml.tmp");
-        try (FileWriter out = new FileWriter(f)) {
-            new Yaml().dump(files, out);
-            f.renameTo(new java.io.File("data/files.yml"));
-            log.info("Save {} files", files.size());
-        } catch (Exception e) {
-            log.error("Failed save files.yml", e);
-        }
+        if (files != null) YmlUtil.save(files.values(), "data/files.yml");
     }
 
 }

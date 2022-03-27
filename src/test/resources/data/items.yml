@@ -4,7 +4,7 @@
   tags: [1002,1001]
 - id: 1001
   title: второй
-  comment:
+  comments:
     - id: 1000
       text: это второй
       hidden: false
@@ -14,7 +14,7 @@
     - id: 1002
       text: это второй из junit
       author: junit
-  file:
+  files:
     - id: 1001
       path: "1/1001.1001.jpg"
     - id: 1000

@@ -1,14 +1,9 @@
-1000: !!ru.timtish.vyazanie.dto.Tag
+- id: 1000
+  title: проверка
+  description: это проверка
   childs:
-  - &id001 {childs: null, description: null, parentId: 1000, title: null}
-  description: null
-  parentId: null
-  title: null
-1001: *id001
-1002: !!ru.timtish.vyazanie.dto.Tag
+  - {id: 1001, title: junit}
+- id: 1002
+  title: '2'
   childs:
-  - &id002 {childs: null, description: null, parentId: 1002, title: null}
-  description: null
-  parentId: null
-  title: null
-1003: *id002
+  - {id: 1003, title: 2-4, description: вложенный тег}

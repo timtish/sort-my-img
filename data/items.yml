@@ -1,2 +1,14 @@
-
-
+- id: 1000
+  title: загурженный
+  description: эот проветка
+  tags: [1002, 1001]
+- id: 1001
+  title: второй
+  files:
+  - {id: 1000}
+  - {id: 1001}
+  - {id: 1002}
+  comments:
+  - {id: 1000, text: это второй}
+  - {id: 1001, hidden: true, text: скрытый комментарий}
+  - {id: 1002, text: это второй из junit, author: junit}
