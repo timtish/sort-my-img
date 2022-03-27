@@ -1,0 +1,26 @@
+- id: 1000
+  title: загурженный
+  description: эот проветка
+  tags: [1002,1001]
+- id: 1001
+  title: второй
+  comment:
+    - id: 1000
+      text: это второй
+      hidden: false
+    - id: 1001
+      text: скрытый комментарий
+      hidden: true
+    - id: 1002
+      text: это второй из junit
+      author: junit
+  file:
+    - id: 1001
+      path: "1/1001.1001.jpg"
+    - id: 1000
+      path: "1/1001.1000.jpg"
+      description: "второе фото"
+    - id: 1002
+      path: "1/1001.1002.jpg"
+      description: "Летающие снежинки"
+      link: "http://winallos.com/oboi/tekstury/11515-uzory-steklo-moroz-zima.html"

@@ -1,0 +1,12 @@
+- id: 1000
+  title: проверка
+  description: эот проветка
+  child:
+    - id: 1001
+      title: junit
+- id: 1002
+  title: 2
+  child:
+    - id: 1003
+      title: "2-4"
+      description: "вложенный тег"
