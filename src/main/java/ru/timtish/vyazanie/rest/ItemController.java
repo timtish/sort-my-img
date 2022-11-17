@@ -2,13 +2,15 @@ package ru.timtish.vyazanie.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.*;
 import org.yaml.snakeyaml.Yaml;
 import ru.timtish.vyazanie.dto.*;
-import ru.timtish.vyazanie.srote.YmlUtil;
+import ru.timtish.vyazanie.store.YmlUtil;
 
 import javax.annotation.PostConstruct;
-import java.io.FileWriter;
+import javax.annotation.PreDestroy;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
@@ -16,15 +18,17 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
+@RequestMapping("item")
 @RequiredArgsConstructor
 public class ItemController {
 
-    protected TreeMap<Long, Item> items;
+    protected TreeMap<Long, Item> items = new TreeMap<>();
     protected long maxId = 1000;
 
     protected final FileController filesController;
     protected final TagController tagsController;
 
+    @GetMapping("init")
     public Item add(String link) {
         Item file = new Item();
         file.setLink(link);
@@ -32,6 +36,7 @@ public class ItemController {
     }
 
     /** add or update Item */
+    @PostMapping
     public Long save(Item item) {
         if (item.getId() == null) item.setId(maxId++); // set id
         else if (item.equals(items.get(item.getId()))) return item.getId(); // skip save if equals
@@ -41,6 +46,7 @@ public class ItemController {
         return item.getId();
     }
 
+    @GetMapping("find")
     public Collection<Item> find(Filter filter, long max, long page) {
         return items == null ? Collections.emptyList() : items.values().stream()
                 .filter(filter)
@@ -52,11 +58,7 @@ public class ItemController {
     @PostConstruct
     public void load() {
         TreeMap<Long, Item> items = new TreeMap<>();
-        try (InputStream in = getClass().getResourceAsStream("/data/items.yml")) {
-            if (in == null) {
-                log.warn("items.yml not found");
-                return;
-            }
+        try (InputStream in = new FileInputStream("data/items.yml")) {
             new Yaml().loadAll(new InputStreamReader(in))
             .forEach(list -> {
                 for (Map<String, Object> obj : (Collection<Map<String, Object>>) list) try {
@@ -101,9 +103,9 @@ public class ItemController {
         }
     }
 
-    //@PreDestroy
+    @PreDestroy
     public void save() {
-        if (items != null) YmlUtil.save(items.values().stream().map(item -> {
+        if (!ObjectUtils.isEmpty(items)) YmlUtil.save(items.values().stream().map(item -> {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("id", item.getId());
             if (item.getTitle() != null) map.put("title", item.getTitle());

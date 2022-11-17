@@ -1,13 +1,14 @@
 package ru.timtish.vyazanie.rest;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 import ru.timtish.vyazanie.dto.Tag;
-import ru.timtish.vyazanie.srote.YmlUtil;
+import ru.timtish.vyazanie.store.YmlUtil;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -16,10 +17,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RestController("tag")
+@RestController
+@RequestMapping("tag")
 public class TagController {
 
-    protected TreeMap<Long, Tag> tags;
+    protected TreeMap<Long, Tag> tags = new TreeMap<>();
     protected long maxId = 1000;
 
     @PostMapping
@@ -34,11 +36,12 @@ public class TagController {
         return tag;
     }
 
-    @GetMapping
+    @GetMapping("root")
     public List<Tag> rootList() {
         return tags.values().stream().filter(f -> f.getParentId() == null).collect(Collectors.toList());
     }
 
+    @GetMapping
     public Tag get(Long id) {
         return tags.get(id);
     }
@@ -46,11 +49,7 @@ public class TagController {
     @PostConstruct
     public void load() {
         TreeMap<Long, Tag> tags = new TreeMap<>();
-        try (InputStream in = getClass().getResourceAsStream("/data/tags.yml")) {
-            if (in == null) {
-                log.warn("tags.yml not found");
-                return;
-            }
+        try (InputStream in = new FileInputStream("data/tags.yml")) {
             new Yaml().loadAll(new InputStreamReader(in))
                     .forEach(list -> ((List<Map<String, Object>>) list)
                             .forEach(obj -> mapTag(obj, tags)));
@@ -84,7 +83,7 @@ public class TagController {
 
     @PreDestroy
     public void save() {
-        if (tags != null) YmlUtil.save(serializeTagsTree(rootList()), "data/tags.yml");
+        if (!ObjectUtils.isEmpty(tags)) YmlUtil.save(serializeTagsTree(rootList()), "data/tags.yml");
     }
 
     protected List<Map<String, Object>> serializeTagsTree(Collection<Tag> list) {

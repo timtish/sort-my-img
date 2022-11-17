@@ -1,4 +1,4 @@
-package ru.timtish.vyazanie.srote;
+package ru.timtish.vyazanie.store;
 
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.DumperOptions;
